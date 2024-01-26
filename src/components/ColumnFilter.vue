@@ -1,7 +1,7 @@
 <!--
  * @Date: 2023-11-02 15:52:10
  * @LastEditors: @yujie
- * @LastEditTime: 2023-11-09 16:12:49
+ * @LastEditTime: 2024-01-16 10:48:53
  * @Description: 
 -->
 <template>
@@ -89,6 +89,7 @@ let columnsList = ref([])
 let checkList = ref([])
 
 const sourceColumns = sourceColumnsToList(props.columns)
+console.log('sourceColumns', props.columns);
 columnsList.value = sourceColumns.list
 checkList.value = sourceColumns.checkList
 

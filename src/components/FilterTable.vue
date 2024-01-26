@@ -1,7 +1,13 @@
 <!--
  * @Date: 2023-11-01 14:45:05
  * @LastEditors: @yujie
- * @LastEditTime: 2023-11-09 16:17:06
+ * @LastEditTime: 2024-01-16 17:25:09
+ * @Description: 
+-->
+<!--
+ * @Date: 2023-11-01 14:45:05
+ * @LastEditors: @yujie
+ * @LastEditTime: 2024-01-16 09:59:24
  * @Description: 
 -->
 <template>
@@ -23,17 +29,14 @@
                     <span></span>
                 </slot>
             </div>
-            <column-filter :columns="columns" @change="columnChange"></column-filter>
+            <column-filter :columns="columnList" @change="columnChange"></column-filter>
         </div>
         <div class="table">
-            <el-table v-bind="$attrs" :data="tableData" border stripe>
+            <el-table v-bind="$attrs" :data="tableDataCopy" border stripe>
                 <template v-if="$slots.table">
-                    <!-- <slot name="default"></slot> -->
-                    <template v-for="(item, index) in $slots.default()">
-                        <template v-if="index === 1">
-                            <component :is="item"></component>
-                        </template>
-                </template>
+                    <template v-for="(item, index) in $slots.table()">
+                        <searchSlot :v-node="item" :show="columnIsCheck(item.props.prop)"></searchSlot>
+                    </template>
                 </template>
                 <template v-else>
                     <el-table-column v-if="selection" type="selection" width="55" />
@@ -43,20 +46,6 @@
                             <template v-if="col.custom">
                                 <slot :name="col.prop" :row="row">{{ row[col.prop] }}</slot>
                             </template>
-                            <template v-else-if="'children' in col">
-                                <el-table-column v-for="child in col.children" :key="child.label"
-                                    :header-align="child.headerAlign" :align="child.align" :prop="child.prop"
-                                    :label="child.label">
-                                    <template #default="childScore">
-                                        <template v-if="child.custom">
-                                            <slot :name="'column-'+child.prop" :row="childScore.row">{{ childScore.row[child.prop] }}
-                                            </slot>
-                                        </template>
-                                        <span v-else>{{ child.formatter ? child.formatter(childScore.row) :
-                                            childScore.row[child.prop] }}</span>
-                                    </template>
-                                </el-table-column>
-                            </template>
                             <span v-else>{{ col.formatter ? col.formatter(row) : row[col.prop] }}</span>
                         </template>
                     </el-table-column>
@@ -65,7 +54,7 @@
             </el-table>
         </div>
 
-        <div v-show="pagination && tableData.length" class="pagination">
+        <div v-show="pagination && tableDataCopy.length" class="pagination">
             <el-pagination v-model:current-page="searchForm.pageNum" v-model:page-size="searchForm.pageSize"
                 :page-sizes="paginationOption.pageSizes" :small="paginationOption.small"
                 :disabled="paginationOption.disabled" :background="paginationOption.background"
@@ -76,12 +65,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, useSlots, toRefs, h } from 'vue'
+import { ref, reactive, onMounted, useSlots, toRefs, unref, h } from 'vue'
 import { cloneDeep } from 'lodash';
 import ColumnFilter from './ColumnFilter.vue';
 import SearchFormGroup from './SearchFormGroup.vue';
 
-const emit = defineEmits(['sizeChange', 'currentChange'])
+import createSlot from './render.js';
+const searchSlot = createSlot()
+
+const slots = useSlots()
+const emit = defineEmits(['search', 'reset', 'sizeChange', 'currentChange'])
 const props = defineProps({
     filter: Boolean, // 是否开启筛选
     selection: Boolean, // 是否开启多选
@@ -103,9 +96,16 @@ const props = defineProps({
      * columns：table的列数据，筛选列依赖此数据
      * 属性：prop、label、width、header-align、align、children、formatter
      */
-    columns: Array,
+    columns: {
+        type: Array,
+        default: () => []
+    },
+    hideColumns: {
+        type: Array,
+        default: () => []
+    }, // 用于隐藏筛选列及表格列的字段prop
     tableData: Array, // table数据
-    loadData: Function, // 加载方法
+    loadDataFunc: Function, // 加载方法
     paginationOption: { // 分页配置
         type: Object,
         default() {
@@ -120,33 +120,76 @@ const props = defineProps({
     }
 })
 
+let tableDataCopy = ref(props.tableData || [])
 
 const searchFormSource = cloneDeep(props.searchForm)
+// 数据用于表格列渲染
+const columnFilter = ref([])
+// 数据用于筛选列渲染
+const columnList = ref([])
 
-const columnFilter = ref(props.columns)
+let columns = []
 
-const handleSizeChange = function (val) {
+// 过滤要隐藏的列
+// 传入columns时，使用columns
+if (props.columns.length && props.hideColumns.length) {
+    columns = filterHideColumns(props.columns)
+} else {
+    // 未传入columns时，使用table插槽，获取插槽数据以用于渲染表格
+    const tableColumns = slots.table().map(item => item.props)
+    columns = filterHideColumns(tableColumns)
+}
+columnList.value = cloneDeep(columns)
+columnFilter.value = cloneDeep(columns)
+
+
+function handleSizeChange(val) {
     emit('sizeChange')
     props.searchForm.pageSize = val
 }
-const handleCurrentChange = function (val) {
+function handleCurrentChange(val) {
     emit('currentChange')
     props.searchForm.pageNum = val
 }
 
+// 使用hideColumns过滤要隐藏的列
+function filterHideColumns(list) {
+    return list.filter(item => !props.hideColumns.includes(item.prop))
+}
 
-const columnChange = function ({ column, checkList }) {
+// 筛选列变更回调
+function columnChange({ column, checkList }) {
     columnFilter.value = column
 }
 
-const search = function () {
-    props.loadData(props.searchForm)
+// 判断列是否隐藏
+function columnIsCheck(prop) {
+    if (columnFilter.value && columnFilter.value.length) {
+        const props = columnFilter.value.map(item => item.prop)
+        return props.includes(prop)
+    } else {
+        return false
+    }
 }
-const reset = function () {
+if (!props.tableData) {
+    search()
+}
+function search() {
+    if (!props.tableData) {
+        new Promise((resolve)=>resolve(props.loadDataFunc(props.searchForm))).then((result) => {
+            tableDataCopy.value = result.data
+        }).catch((err) => {
+            
+        });
+    }
+    emit('search', props.searchForm)
+}
+function reset() {
     for (const key of Object.keys(props.searchForm)) {
         props.searchForm[key] = searchFormSource[key]
     }
     search()
+    emit('reset', props.searchForm)
 }
 
 

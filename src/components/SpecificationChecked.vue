@@ -11,7 +11,7 @@
 
 <script setup>
 import { ref, reactive, toRefs, watch, onMounted } from 'vue';
-import Adjoin from '@/utils/adjoin.js';
+import Adjoin from '@/utils/adjoin.ts';
 import { cloneDeep } from 'lodash';
 
 const emits = defineEmits(['update:modelValue'])

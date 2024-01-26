@@ -1,7 +1,7 @@
 <!--
  * @Date: 2023-12-07 13:29:45
  * @LastEditors: @yujie
- * @LastEditTime: 2023-12-18 16:53:16
+ * @LastEditTime: 2024-01-16 10:04:52
  * @Description: 
 -->
 <template>
@@ -29,7 +29,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import Adjoin from '@/utils/adjoin.js';
+import Adjoin from '@/utils/adjoin.ts';
 import SpecificationChecked from '@/components/SpecificationChecked.vue';
 const specList = ref([
     { title: "颜色", list: ["红色", "紫色"] },

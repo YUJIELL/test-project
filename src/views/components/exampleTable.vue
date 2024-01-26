@@ -1,6 +1,6 @@
 <template>
     <div>
-        <filter-table filter :search-form="searchForm" :table-data="tableData" :columns="columns">
+        <filter-table filter :search-form="searchForm" :tableData="tableData" :hideColumns="['age']" @search="">
             <template #search>
                 <div>
                     <el-select label="aaa" v-model="searchForm.name" placeholder="">
@@ -11,12 +11,17 @@
                     <el-input label="eeee" v-model="searchForm.name"></el-input>
                 </div>
             </template>
-            <template #buttonGroup>
+            <template #table>
+                <el-table-column label="名称" prop="name"></el-table-column>
+                <el-table-column label="年龄" prop="age"></el-table-column>
+                <el-table-column label="score" prop="score"></el-table-column>
+            </template>
+            <!-- <template #buttonGroup>
                 <el-button type="primary">九九九</el-button>
             </template>
             <template #column-age="{ row }">
                 <el-input></el-input>
-            </template>
+            </template> -->
         </filter-table>
     </div>
 </template>
@@ -43,20 +48,6 @@ const columns = reactive([
         formatter: function (row) {
             return `A:${row.name}`
         },
-        children: [
-            {
-                id: '2',
-                prop: 'age',
-                label: '年龄',
-                custom: true,
-            },
-            {
-                id: '3',
-                prop: 'score',
-                label: '分数',
-                custom: true,
-            },
-        ]
     },
     {
         id: '2',
@@ -77,6 +68,17 @@ const columns = reactive([
         custom: true,
     },
 ])
+
+function loadData(params) {
+    console.log('params', params);
+    return new Promise((resolve)=>{
+        setTimeout(() => {
+            resolve({
+                data: tableData
+            })
+        }, 3000);
+    })
+}
 
 </script>
 <style lang="less" scoped></style>
