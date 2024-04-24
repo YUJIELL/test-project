@@ -19,6 +19,7 @@
     "mitt": "^3.0.1",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
+    "vue-draggable-plus": "^0.4.0",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {

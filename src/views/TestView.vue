@@ -1,7 +1,7 @@
 <!--
  * @Date: 2023-09-19 13:50:14
  * @LastEditors: @yujie
- * @LastEditTime: 2023-12-25 16:58:25
+ * @LastEditTime: 2024-04-12 13:41:18
  * @Description: 
 -->
 <template>
@@ -108,6 +108,17 @@
                             <example-sku></example-sku>
                         </div>
                     </div>
+                    <div class="component-box" id="1-14">
+                        模拟input
+                        <div class="box-content">
+                            <simulate-input :value="inputVModel">
+                                <el-input v-model="inputVModel" placeholder=""></el-input>
+                            </simulate-input>
+                            <!-- <simulate-input :value="inputVModel2">
+                                <el-input v-model="inputVModel2" placeholder=""></el-input>
+                            </simulate-input> -->
+                        </div>
+                    </div>
                     <!-- <ExampleAnimationTimeline></ExampleAnimationTimeline> -->
 
                 </el-container>
@@ -125,20 +136,25 @@ import { useRouter } from "vue-router";
 
 import MoreDialog from '@/components/MoreDialog.vue';
 import MoreRadioGroup from '@/components/MoreRadioGroup.vue';
-import MaskComposite from '@/views/components/MaskComposite.vue';
-import AppBar from '@/views/components/appBar.vue';
-import ExampleTable from '@/views/components/exampleTable.vue';
-import ExampleDecimals from '@/views/components/exampleDecimals.vue';
-import ExampleColumns from '@/views/components/exampleColumns.vue';
-import ExampleHighlight from '@/views/components/exampleHighlight.vue';
-import ExampleScrollIntoView from '@/views/components/exampleScrollIntoview.vue';
-import ExampleAnimationTimeline from '@/views/components/exampleAnimationTimeline.vue';
-import ExampleSku from '@/views/components/exampleSku.vue';
-import ViewTransitions from '@/views/components/ViewTransitions.vue';
-import ImageBox from '@/views/components/imageBox.vue';
+import MaskComposite from '@/views/components/mask-composite.vue';
+import AppBar from '@/views/components/app-bar.vue';
+import ExampleTable from '@/views/components/example-table.vue';
+import ExampleDecimals from '@/views/components/example-decimals.vue';
+import ExampleColumns from '@/views/components/example-columns.vue';
+import ExampleHighlight from '@/views/components/example-highlight.vue';
+import ExampleScrollIntoView from '@/views/components/example-scrollIntoview.vue';
+import ExampleAnimationTimeline from '@/views/components/example-animation-time-line.vue';
+import ExampleSku from '@/views/components/example-sku.vue';
+import ViewTransitions from '@/views/components/view-transitions.vue';
+import ImageBox from '@/views/components/image-box.vue';
+import SimulateInput from '@/views/components/simulate-input.vue';
 import EnumInstance from '@/enums/index.js';
 
 import regExp from '@/utils/regExpSet.ts';
+
+const inputVModel = ref('123123')
+const inputVModel2 = ref('1sssssssssssss')
+
 
 let visible = ref(false)
 const form = reactive({
@@ -177,6 +193,7 @@ const menuList = ref([
     { id: '1-12', label: '原生的视图转换动画 View Transitions' },
     { id: '1-13', label: 'scrollIntoview平滑滚动' },
     { id: '1-14', label: 'grid布局编辑器', routerName: 'grid' },
+    { id: '1-15', label: '低代码', routerName: 'lowCode' },
 ])
 const radio = ref(1)
 

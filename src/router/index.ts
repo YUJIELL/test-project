@@ -1,6 +1,13 @@
+/*
+ * @Date: 2023-09-19 13:38:14
+ * @LastEditors: @yujie
+ * @LastEditTime: 2024-04-16 13:43:04
+ * @Description: 
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import GridGenerator from '../views/GridGenerator.vue';
+import LowCode from '../views/LowCode/index.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,7 +29,12 @@ const router = createRouter({
       path: '/grid',
       name: 'grid',
       component: GridGenerator
-    }
+    },
+    {
+      path: '/lowCode',
+      name: 'lowCode',
+      component: LowCode
+    },
   ]
 })
 
