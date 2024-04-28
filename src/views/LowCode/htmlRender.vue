@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-04-16 16:32:01
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-23 17:11:27
+ * @LastEditTime: 2024-04-24 15:15:37
  * @Description: 
 -->
 <template>
@@ -48,17 +48,51 @@
           "{{ value.name }}"
           <div class="chosen-class" style="display: flex">
             <htmlRender
-              style="width: 100%; display: flex; gap: 10px;flex-wrap: wrap;"
+              style="width: 100%; display: flex; gap: 10px; flex-wrap: wrap"
               v-model="value.children"
               :parentName="value.name"
               @component-click="renderComponentClick"
               @success="cloneSuccess"
             >
-              <div style="width: 24%;flex: 1; text-align: right; margin-top: 10px">
+              <div style="width: 24%; flex: 1; text-align: right; margin-top: 10px">
                 <el-button type="primary">查询</el-button>
                 <el-button type="primary" plain>重置</el-button>
               </div>
             </htmlRender>
+          </div>
+        </div>
+      </template>
+      <template v-else-if="value.name === 'filterTable'">
+        <div class="view-show" @click.stop="componentsClick(value)">
+          "filterTable-searchForm"
+          <div class="chosen-class" style="display: flex">
+            <htmlRender
+              style="width: 100%; display: flex; gap: 10px; flex-wrap: wrap"
+              v-model="value.children"
+              :parentName="value.name"
+              @component-click="renderComponentClick"
+              @success="cloneSuccess"
+            >
+              <div style="width: 24%; flex: 1; text-align: right; margin-top: 10px">
+                <el-button type="primary">查询</el-button>
+                <el-button type="primary" plain>重置</el-button>
+              </div>
+            </htmlRender>
+          </div>
+        </div>
+        <div class="view-show component-shadow" @click.stop="componentsClick(value)">
+          "filterTable-table"
+          <div
+            style="height: 100px"
+            :style="{ height: value.attributes.height, 'max-height': value.attributes.maxHeight }"
+          >
+            <htmlRender
+              class="chosen-class"
+              style="display: flex; justify-content: flex-start"
+              v-model="value.otherChildren"
+              @component-click="renderComponentClick"
+              @success="cloneSuccess"
+            ></htmlRender>
           </div>
         </div>
       </template>
@@ -158,7 +192,7 @@
       </template>
       <div v-else @click.stop="componentsClick(value)" style="max-width: 24%">
         <template v-if="value.name === 'input'">
-          <div v-if="parentName === 'ythSearchPanel'" class="search-form-item">
+          <div v-if="parentName === 'ythSearchPanel' || parentName === 'filterTable'" class="search-form-item">
             <div class="shade"></div>
             <span>{{ value.attributes.formLabel }}：</span>
             <el-input v-bind="value.attributes"></el-input>
@@ -166,14 +200,14 @@
           <el-input v-else v-bind="value.attributes"></el-input>
         </template>
         <template v-if="value.name === 'select'">
-          <div v-if="parentName === 'ythSearchPanel'" class="search-form-item">
+          <div v-if="parentName === 'ythSearchPanel' || parentName === 'filterTable'" class="search-form-item">
             <span>{{ value.attributes.formLabel }}：</span>
             <el-select v-bind="value.attributes"></el-select>
           </div>
           <el-select v-else v-bind="value.attributes"></el-select>
         </template>
         <div v-if="value.name === 'datePicker'">
-          <div v-if="parentName === 'ythSearchPanel'" class="search-form-item">
+          <div v-if="parentName === 'ythSearchPanel' || parentName === 'filterTable'" class="search-form-item">
             <span>{{ value.attributes.formLabel }}：</span>
             <el-date-picker v-bind="value.attributes"></el-date-picker>
           </div>
@@ -187,6 +221,20 @@
         </div>
         <div v-else-if="value.name === 'link'">
           <el-link v-bind="value.attributes"></el-link>
+        </div>
+        <div v-else-if="value.name === 'pagination'">
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="value.attributes.pageSizes"
+            :small="value.attributes.small"
+            :disabled="value.attributes.disabled"
+            :background="value.attributes.background"
+            :layout="value.attributes.layout"
+            :total="value.attributes.total"
+            @size-change="value.attributes.sizeChange"
+            @current-change="value.attributes.currentChange"
+          />
         </div>
       </div>
     </template>
@@ -203,6 +251,8 @@ const props = defineProps({
   modelValue: Array,
   parentName: String
 })
+const currentPage = ref(1)
+const pageSize = ref(10)
 const htmlList = computed({
   get: () => props.modelValue,
   set: (value) => emits('update:modelValue', value)

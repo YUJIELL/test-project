@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-03-27 14:14:31
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-23 17:04:41
+ * @LastEditTime: 2024-04-25 16:03:54
  * @Description: 
 -->
 <template>
@@ -38,7 +38,7 @@
     <div class="content-center" style="overflow-x: hidden">
       <div class="center-title">
         <el-button @click="copyCode('v2')">生成vue2代码</el-button>
-        <el-button @click="copyCode('v3')">生成vue3代码</el-button>
+        <!-- <el-button @click="copyCode('v3')">生成vue3代码</el-button> -->
         <el-button @click="resetComponentsList">重置</el-button>
       </div>
       <div>
@@ -114,6 +114,9 @@ function onClone(params) {
     info: params,
     children: 'children' in params ? [] : null,
     id: Id
+  }
+  if ('otherChildren' in params) {
+    newParams['otherChildren'] = []
   }
   currentAttributeTemporary = {
     ...params,
@@ -195,11 +198,12 @@ function variableType(data) {
 }
 
 // 解析组件标签生成html
-function attributesToHtml(params) {
-  vueMethods.value = ''
-  vueData.value = {}
+function attributesToHtml(params, parentInfo = null) {
+  // vueMethods.value = ''
+  // vueData.value = {}
   let attributesString = ''
   let htmlString = ''
+  console.log('>>>>>>>', params)
   params.forEach((element) => {
     const tagName = camelToKebab(element.name)
 
@@ -250,8 +254,7 @@ function attributesToHtml(params) {
               continue
             }
           }
-        }
-        if (tagName === 'form-item') {
+        } else if (tagName === 'form-item') {
           if (kebab === 'rules') {
             if (element.attributes.required && element.attributes.isInlineRules) {
               kebab = ':rules'
@@ -269,10 +272,6 @@ function attributesToHtml(params) {
             continue
           }
         }
-        if (tagName === 'table') {
-          const key = element.attributes.data
-          vueData.value[key] = []
-        }
         if (kebab === 'disabled' && !newValue) {
           continue
         }
@@ -287,8 +286,32 @@ function attributesToHtml(params) {
         }
       }
     }
+    if (tagName === 'filter-table') {
+      vueData.value[element.attributes.filterForm] = {}
+      vueMethods.value += `
+        loadData() {},
+      `
+    } else if (
+      (tagName === 'select' || tagName === 'input' || tagName === 'date-picker') &&
+      (parentInfo.name === 'filterTable' || parentInfo.name === 'ythSearchPanel')
+    ) {
+      const filterFormName =
+        parentInfo.name === 'filterTable'
+          ? parentInfo.attributes.filterForm
+          : parentInfo.attributes.model
+      if (filterFormName) {
+        vueData.value[filterFormName][element.attributes.vModel] = null
+      }
+      attributesString += `label="${element.attributes.formLabel}"`
+    } else if (tagName === 'table') {
+      const key = element.attributes.data
+      vueData.value[key] = []
+    }
 
-    const childrenHtml = element.children ? attributesToHtml(element.children) : ''
+    const childrenHtml = element.children ? attributesToHtml(element.children, element) : ''
+    const otherChildrenHtml = element.otherChildren
+      ? attributesToHtml(element.otherChildren, element)
+      : ''
 
     let tagContent = ''
     switch (tagName) {
@@ -309,12 +332,35 @@ function attributesToHtml(params) {
                     :value="${optionsInfo.value}">
                 </el-option>`
         break
+      case 'filter-table':
+        tagContent = `
+            <template #filter>
+              ${childrenHtml}
+            <\/template>
+          `
+        if (element.attributes.tableTop) {
+          tagContent += `
+            <template #tableTop>
+              ${element.attributes.tableTop}
+            <\/template>
+          `
+        }
+        if (otherChildrenHtml) {
+          tagContent += `
+            <template #table>
+              ${otherChildrenHtml}
+            <\/template>
+          `
+        }
+        break
       default:
         tagContent = `${childrenHtml}`
         break
     }
-    const tagNameStart = `<el-${tagName} ${attributesString}>`
-    const tagNameEnd = `</el-${tagName}>`
+    const tagNameStart = element.isCustom
+      ? `<${tagName} ${attributesString}>`
+      : `<el-${tagName} ${attributesString}>`
+    const tagNameEnd = element.isCustom ? `</${tagName}>` : `</el-${tagName}>`
     htmlString = tagNameStart + tagContent + tagNameEnd
   })
   return htmlString
@@ -421,7 +467,7 @@ function copyComponents(params) {
 function componentsInfoEdit(array, id) {
   for (let index = 0; index < array.length; index++) {
     const element = array[index]
-    console.log('element>>>>>', element);
+    console.log('element>>>>>', element)
     if (element.id === id) {
       return element
     } else if (element.children && element.children.length) {

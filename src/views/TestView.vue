@@ -1,7 +1,7 @@
 <!--
  * @Date: 2023-09-19 13:50:14
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-12 13:41:18
+ * @LastEditTime: 2024-04-25 16:08:50
  * @Description: 
 -->
 <template>
@@ -191,7 +191,7 @@ const menuList = ref([
     { id: '1-10', label: 'mask示例' },
     { id: '1-11', label: '高亮边框' },
     { id: '1-12', label: '原生的视图转换动画 View Transitions' },
-    { id: '1-13', label: 'scrollIntoview平滑滚动' },
+    { id: '1-13', label: 'SKU：基于无向图的实现' },
     { id: '1-14', label: 'grid布局编辑器', routerName: 'grid' },
     { id: '1-15', label: '低代码', routerName: 'lowCode' },
 ])

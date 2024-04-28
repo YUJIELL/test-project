@@ -1,12 +1,13 @@
 /*
  * @Date: 2024-04-12 13:59:17
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-23 17:03:27
+ * @LastEditTime: 2024-04-24 16:27:08
  * @Description:
  */
 const inputOptions = {
   name: 'input',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -163,6 +164,7 @@ const inputOptions = {
 const selectOptions = {
   name: 'select',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -331,6 +333,7 @@ const selectOptions = {
 const buttonOptions = {
   name: 'button',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -438,6 +441,7 @@ const buttonOptions = {
 const linkOptions = {
   name: 'link',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'type',
@@ -504,6 +508,7 @@ const linkOptions = {
 const switchOptions = {
   name: 'switch',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -610,6 +615,7 @@ const switchOptions = {
 const datePickerOptions = {
   name: 'datePicker',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -778,6 +784,7 @@ const datePickerOptions = {
 const formOptions = {
   name: 'form',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -896,6 +903,7 @@ const formOptions = {
 const formItemOptions = {
   name: 'formItem',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -973,6 +981,7 @@ const formItemOptions = {
 const radioGroupOptions = {
   name: 'radioGroup',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1050,6 +1059,7 @@ const radioGroupOptions = {
 const radioOptions = {
   name: 'radio',
   type: 'form',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1117,6 +1127,7 @@ const radioOptions = {
 const checkboxGroupOptions = {
   name: 'checkboxGroup',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1184,6 +1195,7 @@ const checkboxGroupOptions = {
 const checkboxOptions = {
   name: 'checkbox',
   type: 'form',
+  isCustom: false,
   attributes: [
     {
       name: 'vModel',
@@ -1270,12 +1282,14 @@ const checkboxOptions = {
 const rowOptions = {
   name: 'row',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: []
 }
 const colOptions = {
   name: 'col',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1304,6 +1318,7 @@ const colOptions = {
 const tableOptions = {
   name: 'table',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1431,6 +1446,7 @@ const tableOptions = {
 const tableItemOptions = {
   name: 'tableColumn',
   type: 'container',
+  isCustom: false,
   children: [],
   attributes: [
     {
@@ -1538,6 +1554,7 @@ const tableItemOptions = {
 const contentPageOptions = {
   name: 'contentPage',
   type: 'container',
+  isCustom: true,
   children: [],
   attributes: [
     {
@@ -1575,6 +1592,7 @@ const contentPageOptions = {
 const contentBlockOptions = {
   name: 'contentBlock',
   type: 'container',
+  isCustom: true,
   children: [],
   attributes: [
     {
@@ -1663,6 +1681,7 @@ const contentBlockOptions = {
 const ythSearchPanelOptions = {
   name: 'ythSearchPanel',
   type: 'container',
+  isCustom: true,
   children: [],
   attributes: [
     {
@@ -1672,7 +1691,7 @@ const ythSearchPanelOptions = {
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: '',
+      modelValue: 'filterForm',
       isTagAttr: true
     },
     {
@@ -1757,6 +1776,262 @@ const ythSearchPanelOptions = {
     },
   ]
 }
+const paginationOptions = {
+  name: 'pagination',
+  type: 'form',
+  isCustom: false,
+  attributes: [
+    {
+      name: 'currentPage',
+      label: '当前页数',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: 1,
+      isTagAttr: true
+    },
+    {
+      name: 'pageSize',
+      label: '每页显示条目个数',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: 10,
+      isTagAttr: true
+    },
+    {
+      name: 'disabled',
+      label: '是否禁用',
+      isVariable: true,
+      accepted: [false, true],
+      attrType: 'attr',
+      inputType: 'switch',
+      modelValue: false,
+      isTagAttr: true
+    },
+    {
+      name: 'total',
+      label: '总条目数',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: 0,
+      isTagAttr: true
+    },
+    {
+      name: 'pageCount',
+      label: '总页数',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'pageSizes',
+      label: '每页显示个数选择器的选项设置',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: [10, 20, 30, 40, 50, 100],
+      isTagAttr: true
+    },
+    {
+      name: 'layout',
+      label: '组件布局，子组件名用逗号分隔',
+      isVariable: false,
+      accepted: 'prev, pager, next, jumper, ->, total',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: 'total, sizes, prev, pager, next, jumper',
+      isTagAttr: true
+    },
+    {
+      name: 'hideOnSinglePage',
+      label: '只有一页时是否隐藏',
+      isVariable: true,
+      accepted: [false, true],
+      attrType: 'attr',
+      inputType: 'switch',
+      modelValue: false,
+      isTagAttr: true
+    },
+    {
+      name: 'small',
+      label: '是否使用小型分页样式',
+      isVariable: false,
+      accepted: [false, true],
+      attrType: 'attr',
+      inputType: 'switch',
+      modelValue: false,
+      isTagAttr: true
+    },
+    {
+      name: 'background',
+      label: '是否为分页按钮添加背景色',
+      isVariable: false,
+      accepted: [false, true],
+      attrType: 'attr',
+      inputType: 'switch',
+      modelValue: false,
+      isTagAttr: true
+    },
+    {
+      name: 'pagerCount',
+      label: '页码按钮的数量，当总页数超过该值时会折叠',
+      isVariable: true,
+      accepted: '大于等于 5 且小于等于 21 的奇数',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'popperClass',
+      label: '每页显示个数选择器的下拉框类名',
+      isVariable: false,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'prevText',
+      label: '替代图标显示的上一页文字',
+      isVariable: false,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'nextText',
+      label: '替代图标显示的下一页文字',
+      isVariable: false,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'sizeChange',
+      label: 'pageSize 改变时会触发',
+      isVariable: false,
+      accepted: '',
+      attrType: 'event',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'currentChange',
+      label: 'currentPage 改变时会触发',
+      isVariable: false,
+      accepted: '',
+      attrType: 'event',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'prevClick',
+      label: '用户点击上一页按钮改变当前页后触发',
+      isVariable: false,
+      accepted: '',
+      attrType: 'event',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'nextClick',
+      label: '用户点击下一页按钮改变当前页后触发',
+      isVariable: false,
+      accepted: '',
+      attrType: 'event',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+  ]
+}
+const filterTableOptions = {
+  name: 'filterTable',
+  type: 'container',
+  isCustom: true,
+  children: [],
+  otherChildren: [],
+  attributes: [
+    {
+      name: 'filterForm',
+      label: 'filterForm',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: 'filterForm',
+      isTagAttr: true
+    },
+    {
+      name: 'defaultFilterForm',
+      label: 'defaultFilterForm',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'tableTop',
+      label: 'slot:tableTop',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'textarea',
+      modelValue: '<el-button type="primary">操作</el-button>',
+      isTagAttr: false
+    },
+    {
+      name: 'pageLayout',
+      label: 'pageLayout',
+      isVariable: false,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'pageSizes',
+      label: 'pageSizes',
+      isVariable: true,
+      accepted: '',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+    {
+      name: 'tableBtnDirection',
+      label: 'tableBtnDirection',
+      isVariable: false,
+      accepted: 'left',
+      attrType: 'attr',
+      inputType: 'text',
+      modelValue: '',
+      isTagAttr: true
+    },
+  ]
+}
 
 export default [
   inputOptions,
@@ -1777,5 +2052,7 @@ export default [
   datePickerOptions,
   contentPageOptions,
   contentBlockOptions,
-  ythSearchPanelOptions
+  ythSearchPanelOptions,
+  paginationOptions,
+  filterTableOptions
 ]
