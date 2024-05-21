@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-04-12 13:59:17
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-24 16:27:08
+ * @LastEditTime: 2024-05-21 15:05:12
  * @Description:
  */
 const inputOptions = {
@@ -76,12 +76,12 @@ const inputOptions = {
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: '清输入',
+      modelValue: '请输入',
       isTagAttr: true
     },
     {
       name: 'clearable',
-      label: 'clearable是否可清空',
+      label: 'clearable是否可请空',
       isVariable: false,
       accepted: [false, true],
       attrType: 'attr',
@@ -151,7 +151,7 @@ const inputOptions = {
     },
     {
       name: 'clear',
-      label: '在点击由 clearable 属性生成的清空按钮时触发',
+      label: '在点击由 clearable 属性生成的请空按钮时触发',
       isVariable: false,
       accepted: 'clear(value)',
       attrType: 'event',
@@ -229,7 +229,7 @@ const selectOptions = {
     },
     {
       name: 'clearable',
-      label: 'clearable是否可清空',
+      label: 'clearable是否可请空',
       isVariable: false,
       accepted: [false, true],
       attrType: 'attr',
@@ -299,7 +299,7 @@ const selectOptions = {
     },
     {
       name: 'clear',
-      label: '可清空的单选模式下用户点击清空按钮时触发',
+      label: '可请空的单选模式下用户点击请空按钮时触发',
       isVariable: false,
       accepted: 'clear(value)',
       attrType: 'event',
@@ -620,7 +620,7 @@ const datePickerOptions = {
     {
       name: 'vModel',
       label: 'model',
-      isVariable: true,
+      isVariable: false,
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
@@ -699,7 +699,7 @@ const datePickerOptions = {
     },
     {
       name: 'clearable',
-      label: '是否显示清除按钮',
+      label: '是否显示请除按钮',
       isVariable: false,
       accepted: [false, true],
       attrType: 'attr',
@@ -769,7 +769,7 @@ const datePickerOptions = {
     },
     {
       name: 'clear',
-      label: '在点击由 clearable 属性生成的清空按钮时触发',
+      label: '在点击由 clearable 属性生成的请空按钮时触发',
       isVariable: false,
       accepted: 'clear(value)',
       attrType: 'event',
@@ -1295,7 +1295,7 @@ const colOptions = {
     {
       name: 'span',
       label: 'span栅格占据的列数',
-      isVariable: false,
+      isVariable: true,
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
@@ -1305,7 +1305,7 @@ const colOptions = {
     {
       name: 'offset',
       label: 'offset栅格左侧的间隔格数',
-      isVariable: false,
+      isVariable: true,
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
@@ -1328,8 +1328,8 @@ const tableOptions = {
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: '',
-      isTagAttr: false
+      modelValue: 'tableData',
+      isTagAttr: true
     },
     {
       name: 'height',
@@ -1368,7 +1368,7 @@ const tableOptions = {
       accepted: [false, true],
       attrType: 'attr',
       inputType: 'switch',
-      modelValue: false,
+      modelValue: true,
       isTagAttr: true
     },
     {
@@ -1506,17 +1506,17 @@ const tableItemOptions = {
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: 0,
+      modelValue: '',
       isTagAttr: true
     },
     {
       name: 'fixed',
       label: '列是否固定在左侧或者右侧，true 表示固定在左侧',
       isVariable: false,
-      accepted: [true, 'left', 'right'],
+      accepted: ['left', 'right'],
       attrType: 'attr',
       inputType: 'radio',
-      modelValue: null,
+      modelValue: '',
       isTagAttr: true
     },
     {
@@ -1536,7 +1536,7 @@ const tableItemOptions = {
       accepted: ['left', 'center', 'right'],
       attrType: 'attr',
       inputType: 'radio',
-      modelValue: 'left',
+      modelValue: '',
       isTagAttr: true
     },
     {
@@ -1546,7 +1546,7 @@ const tableItemOptions = {
       accepted: ['left', 'center', 'right'],
       attrType: 'attr',
       inputType: 'radio',
-      modelValue: 'left',
+      modelValue: '',
       isTagAttr: true
     }
   ]
@@ -1571,7 +1571,7 @@ const contentPageOptions = {
       name: 'backAction',
       label: 'back-action',
       isVariable: false,
-      accepted: '{ show: false }',
+      accepted: `{ show: false, name: 返回, icon: el-icon-arrow-left, handler: function, }`,
       attrType: 'attr',
       inputType: 'text',
       modelValue: '',
@@ -1584,7 +1584,7 @@ const contentPageOptions = {
       accepted: ['default', 'detail'],
       attrType: 'attr',
       inputType: 'radio',
-      modelValue: 'default',
+      modelValue: '',
       isTagAttr: true
     },
   ]
@@ -1780,10 +1780,22 @@ const paginationOptions = {
   name: 'pagination',
   type: 'form',
   isCustom: false,
+  handleVueMethods: function (params) {
+    
+  },
+  handleVueData: function (params) {
+    params
+    return {
+      // pageNum:
+    }
+  },
+  handleVueMounted: function (params) {
+    
+  },
   attributes: [
     {
       name: 'currentPage',
-      label: '当前页数',
+      label: '当前页数pageNum',
       isVariable: true,
       accepted: '',
       attrType: 'attr',
@@ -1793,7 +1805,7 @@ const paginationOptions = {
     },
     {
       name: 'pageSize',
-      label: '每页显示条目个数',
+      label: '每页显示条目个数pageSize',
       isVariable: true,
       accepted: '',
       attrType: 'attr',
@@ -1838,7 +1850,7 @@ const paginationOptions = {
       accepted: '',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: [10, 20, 30, 40, 50, 100],
+      modelValue: '[10, 20, 30, 40, 50, 100]',
       isTagAttr: true
     },
     {
@@ -1848,7 +1860,7 @@ const paginationOptions = {
       accepted: 'prev, pager, next, jumper, ->, total',
       attrType: 'attr',
       inputType: 'text',
-      modelValue: 'total, sizes, prev, pager, next, jumper',
+      modelValue: 'prev, pager, next, sizes, total',
       isTagAttr: true
     },
     {
@@ -1928,7 +1940,7 @@ const paginationOptions = {
       accepted: '',
       attrType: 'event',
       inputType: 'text',
-      modelValue: '',
+      modelValue: 'handleSizeChange',
       isTagAttr: true
     },
     {
@@ -1938,7 +1950,7 @@ const paginationOptions = {
       accepted: '',
       attrType: 'event',
       inputType: 'text',
-      modelValue: '',
+      modelValue: 'handleCurrentChange',
       isTagAttr: true
     },
     {

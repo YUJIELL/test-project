@@ -1,7 +1,7 @@
 <!--
  * @Date: 2023-09-19 13:50:14
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-25 16:08:50
+ * @LastEditTime: 2024-04-28 10:17:40
  * @Description: 
 -->
 <template>
@@ -119,7 +119,12 @@
                             </simulate-input> -->
                         </div>
                     </div>
-                    <!-- <ExampleAnimationTimeline></ExampleAnimationTimeline> -->
+                    <div class="component-box" id="1-14">
+                        支持@的输入框
+                        <div class="box-content">
+                            <mention-input v-model="mentionValue"></mention-input>
+                        </div>
+                    </div>
 
                 </el-container>
             </el-container>
@@ -149,11 +154,13 @@ import ViewTransitions from '@/views/components/view-transitions.vue';
 import ImageBox from '@/views/components/image-box.vue';
 import SimulateInput from '@/views/components/simulate-input.vue';
 import EnumInstance from '@/enums/index.js';
+import MentionInput from '@/components/MentionInput.vue';
 
 import regExp from '@/utils/regExpSet.ts';
 
 const inputVModel = ref('123123')
 const inputVModel2 = ref('1sssssssssssss')
+const mentionValue = ref('')
 
 
 let visible = ref(false)

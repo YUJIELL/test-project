@@ -1,7 +1,7 @@
 <!--
  * @Date: 2024-03-27 14:14:31
  * @LastEditors: @yujie
- * @LastEditTime: 2024-04-25 16:03:54
+ * @LastEditTime: 2024-05-21 14:54:53
  * @Description: 
 -->
 <template>
@@ -55,7 +55,7 @@
       <div class="right-title">组件配置项</div>
       <div class="right-detail">
         <div style="text-align: center; margin-top: 10px">
-          组件名称：{{ currentAttribute.name }}
+          组件名称：{{ currentAttribute.name }}，Id：{{ currentAttribute.id }}
         </div>
         <options-setting
           :currentInfo="currentAttribute"
@@ -74,6 +74,7 @@ import { VueDraggable } from 'vue-draggable-plus'
 import optionsSetting from './optionsSetting.vue'
 import htmlRender from './htmlRender.vue'
 import { cloneDeep } from 'lodash'
+import { ElMessage } from 'element-plus'
 
 const componentsList = ref([...componentsOptions])
 const htmlEditList = ref([])
@@ -86,10 +87,12 @@ const vueMethods = ref('')
 let Id = 0
 
 const componentsListForm = computed(() => {
-  return componentsList.value.filter((item) => item.type === 'form')
+  const list = componentsList.value
+  return list.filter((item) => item.type === 'form')
 })
 const componentsListContainer = computed(() => {
-  return componentsList.value.filter((item) => item.type === 'container')
+  const list = componentsList.value
+  return list.filter((item) => item.type === 'container')
 })
 
 function resetComponentsList() {
@@ -118,13 +121,17 @@ function onClone(params) {
   if ('otherChildren' in params) {
     newParams['otherChildren'] = []
   }
-  currentAttributeTemporary = {
+  currentAttributeTemporary = cloneDeep({
     ...params,
     id: Id,
     parentId: null
-  }
-  currentComponentInfoTemporary = newParams
-  return newParams
+  })
+  console.log('aaaaaaaaaa')
+  currentComponentInfoTemporary = cloneDeep(newParams)
+  return currentComponentInfoTemporary
+}
+function cloneMethod(params) {
+  console.log('params', params)
 }
 
 function copyCode(type) {
@@ -165,7 +172,7 @@ function copyCode(type) {
             `
   }
   console.log('htmlString', htmlString)
-  // copyTextToClipboard(htmlString)
+  copyTextToClipboard(htmlString)
 }
 
 function jsonToString(params) {
@@ -199,39 +206,47 @@ function variableType(data) {
 
 // 解析组件标签生成html
 function attributesToHtml(params, parentInfo = null) {
+  console.log('parentInfo', parentInfo)
   // vueMethods.value = ''
   // vueData.value = {}
-  let attributesString = ''
   let htmlString = ''
-  console.log('>>>>>>>', params)
   params.forEach((element) => {
+    let attributesString = ''
     const tagName = camelToKebab(element.name)
 
     for (const [key, value] of Object.entries(element.attributes)) {
       const attributesInfo = arrayToObject(element.info.attributes)[key]
       if (key !== 'options') {
         const isBind =
-          ['Boolean', 'Array', 'Object'].includes(variableType(value)) || attributesInfo.isVariable
+          ['Boolean', 'Array', 'Object'].includes(variableType(value)) || attributesInfo?.isVariable
             ? ':'
             : ''
         let kebab = camelToKebab(key)
         let newValue = value
-        if (attributesInfo.attrType === 'event' && value !== '') {
+        const {modelValue, accepted, attrType} = attributesInfo
+        if (attrType === 'event' && value !== '') {
           kebab = `@${kebab}`
-          newValue = attributesInfo.modelValue
-          vueMethods.value += attributesInfo.modelValue.includes('(')
+          newValue = modelValue
+          console.log('attributesInfo', value)
+          vueMethods.value += modelValue.includes('(')
             ? `
-                        ${attributesInfo.modelValue}{},
+                        ${modelValue}{
+                          this.${key==='size-change'?'pageSize':'pageNum'} = ${modelValue.match(/\((.+)\)/)[1]}
+                          this.loadData()
+                        },
                     `
             : `
-                        ${attributesInfo.modelValue}${attributesInfo.accepted.match(/\(.+\)/)[0]}{},
+                        ${modelValue}${accepted?accepted.match(/\(.+\)/)[0]:'(value)'}{
+                          this.${key==='size-change'?'pageSize':'pageNum'} = ${accepted?modelValue.match(/\((.+)\)/)[1]:'value'}
+                          this.loadData()
+                        },
                     `
         }
-        if (attributesInfo.attrType === 'methods' && value !== '') {
+        if (attrType === 'methods' && value !== '') {
           vueMethods.value += `
-                    ${attributesInfo.modelValue}(){
+                    ${modelValue}(){
                         this.$refs[${element.attributes.ref}].${key}${
-                          attributesInfo.accepted.match(/\(.+\)$/)[0]
+                          accepted.match(/\(.+\)$/)[0]
                         }
                     },
                     `
@@ -271,6 +286,14 @@ function attributesToHtml(params, parentInfo = null) {
           ) {
             continue
           }
+        } else if (tagName === 'pagination') {
+          if (key === 'currentPage') {
+            newValue = 'pageNum'
+          } else if (key === 'pageSize') {
+            newValue = 'pageSize'
+          } else if (key === 'total') {
+            newValue = 'total'
+          }
         }
         if (kebab === 'disabled' && !newValue) {
           continue
@@ -293,6 +316,7 @@ function attributesToHtml(params, parentInfo = null) {
       `
     } else if (
       (tagName === 'select' || tagName === 'input' || tagName === 'date-picker') &&
+      parentInfo &&
       (parentInfo.name === 'filterTable' || parentInfo.name === 'ythSearchPanel')
     ) {
       const filterFormName =
@@ -306,19 +330,26 @@ function attributesToHtml(params, parentInfo = null) {
     } else if (tagName === 'table') {
       const key = element.attributes.data
       vueData.value[key] = []
+    } else if (tagName === 'pagination') {
+      vueData.value['pageNum'] = element.attributes.currentPage
+      vueData.value['pageSize'] = element.attributes.pageSize
+      vueData.value['total'] = element.attributes.total
     }
 
     const childrenHtml = element.children ? attributesToHtml(element.children, element) : ''
     const otherChildrenHtml = element.otherChildren
       ? attributesToHtml(element.otherChildren, element)
       : ''
-
     let tagContent = ''
+    console.log('>>>>', tagName)
     switch (tagName) {
-      case 'table-item':
-        tagContent = `<template>
+      case 'table-column':
+        console.log('123123')
+        if (childrenHtml) {
+          tagContent = `<template>
                     ${childrenHtml}
                 <\/template>`
+        }
         break
       case 'select':
         const optionsInfo = element.attributes.options
@@ -357,11 +388,19 @@ function attributesToHtml(params, parentInfo = null) {
         tagContent = `${childrenHtml}`
         break
     }
-    const tagNameStart = element.isCustom
-      ? `<${tagName} ${attributesString}>`
-      : `<el-${tagName} ${attributesString}>`
-    const tagNameEnd = element.isCustom ? `</${tagName}>` : `</el-${tagName}>`
-    htmlString = tagNameStart + tagContent + tagNameEnd
+    const tagNameStart = element.info.isCustom
+      ? `
+      <${tagName} ${attributesString}>
+      `
+      : `
+      <el-${tagName} ${attributesString}>
+      `
+    const tagNameEnd = element.info.isCustom
+      ? `
+    </${tagName}>`
+      : `
+    </el-${tagName}>`
+    htmlString += tagNameStart + tagContent + tagNameEnd
   })
   return htmlString
 }
@@ -412,12 +451,12 @@ function componentClick(params) {
 async function copyTextToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text)
-    this.$message({
+    ElMessage({
       type: 'success',
       message: 'Vue代码已复制到剪贴板！'
     })
   } catch (err) {
-    this.$message.error('复制失败')
+    ElMessage.error('复制失败')
   }
 }
 function treeToList(list) {
@@ -432,7 +471,14 @@ function treeToList(list) {
   return newList
 }
 // 拖拽克隆成功回调
-function cloneSuccess() {
+function cloneSuccess(data) {
+  const componentName = data.item.innerText
+  const toComponentName = data.to.className
+  console.log(999, componentName, toComponentName)
+  if (componentName === 'tableColumn' && !toComponentName.includes('table')) {
+    ElMessage.error('table-column只能放入table组件中')
+    return
+  }
   currentAttribute.value = cloneDeep(currentAttributeTemporary)
   currentComponentInfo.value = cloneDeep(currentComponentInfoTemporary)
   htmlEditListIdReset()
@@ -443,10 +489,12 @@ function orderUpdate() {
 // 重置htmlEditList中数据id
 function htmlEditListIdReset() {
   idFormatter(htmlEditList.value)
+  console.log('htmlEditList.value', htmlEditList.value)
 }
 function idFormatter(list, parentId = '') {
   list.forEach((item) => {
     item.parentId = parentId
+    console.log('item', item)
     if (item.children) {
       idFormatter(item.children, item.id)
     }
@@ -457,7 +505,7 @@ function copyComponents(params) {
   const { id } = params
   const component = componentsInfoEdit(htmlEditList.value, id)
   if (component) {
-    const newComponent = setId(component)
+    const newComponent = cloneDeep(setId(component))
     htmlEditList.value.push(newComponent)
     updateCurrentComponentInfoTemporary(newComponent)
   }
@@ -465,15 +513,15 @@ function copyComponents(params) {
 }
 // 复制组件时将当前组件复制插入父组件内
 function componentsInfoEdit(array, id) {
+  Id++
   for (let index = 0; index < array.length; index++) {
     const element = array[index]
-    console.log('element>>>>>', element)
     if (element.id === id) {
-      return element
+      return cloneDeep(element)
     } else if (element.children && element.children.length) {
       const component = componentsInfoEdit(element.children, id)
       if (component) {
-        const newComponent = setId(component)
+        const newComponent = cloneDeep(setId(component))
         element.children.push(newComponent)
         updateCurrentComponentInfoTemporary(newComponent)
       }
@@ -497,8 +545,16 @@ function updateCurrentComponentInfoTemporary(newComponent) {
 }
 // 复制组件时设置新id
 function setId(component) {
-  const newComponent = cloneDeep(component)
-  newComponent.id = component.id + 1
+  console.log('setId', component)
+  const newComponent = component
+  newComponent.id = component.id + Id
+  let newChildren = []
+  if (component.children && component.children.length) {
+    component.children.forEach((item) => {
+      newChildren.push(setId(item))
+    })
+  }
+  newComponent.children = newChildren
   return newComponent
 }
 // 删除组件
@@ -512,7 +568,6 @@ function listDelete(array, parentId, id) {
     const element = array[index]
     if (element.id === parentId) {
       const delIndex = element.children.findIndex((item) => item.id === id)
-      console.log('delIndex', delIndex)
       element.children.splice(delIndex, 1)
     } else if (element.children.length) {
       listDelete(element.children, parentId, id)
